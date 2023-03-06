@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 const index = resolve=>System.import('@/pages/index')
+const convention = resolve=>System.import('@/pages/convention')
 
 Vue.use(Router);
 
@@ -11,6 +12,11 @@ const router = new Router({
 		path: '/index',
 		name:"首页",
 		component: index
+	},
+	{
+		path: '/convention',
+		name:"预约会议室",
+		component: convention
 	},
 	]
 })

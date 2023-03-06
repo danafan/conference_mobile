@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="container page_b">
     <keep-alive>
       <router-view v-if="$route.meta.keepAlive"></router-view>
     </keep-alive>
@@ -13,7 +13,7 @@
   export default {
     name: 'app',
     created(){
-      this.$router.push('/index')
+      this.$router.push('/convention')
       // this.$store.commit('setUserInfo',{user_type:1,user_name:'哈哈哈'});
       // this.$router.replace('/yyzy_index');
       //获取钉钉鉴权信息

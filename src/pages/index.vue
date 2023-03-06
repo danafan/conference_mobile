@@ -1,11 +1,11 @@
 <template>
 	<div class="pl12 pr12 pt12">
 		<img class="width-100 index_banner mb24" src="../static/index_banner.png">
-		<div class="width-100 menu_item white_b flex ac mb14">
+		<div class="width-100 menu_item white_b flex ac mb14 pl10" @click="$router.push('/convention')">
 			<img class="menu_icon mr10" src="../static/yy_icon.png">
 			<div class="text_color fw-500 f16">预约会议室</div>
 		</div>
-		<div class="width-100 menu_item white_b flex ac">
+		<div class="width-100 menu_item white_b flex ac pl10">
 			<img class="menu_icon mr10" src="../static/record_icon.png">
 			<div class="text_color fw-500 f16">会议室记录</div>
 		</div>
