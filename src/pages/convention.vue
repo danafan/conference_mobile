@@ -1,10 +1,10 @@
 <template>
-	<div class="container">
+	<div class="container flex fc">
 		<!-- 顶部 -->
 		<div class="white_b pt15 pr15 pb20 pl15 mb10">
-			<div class="flex ac mb15">
+			<div class="flex ac mb15" @click="show_calendar = true">
 				<img class="date_icon mr10" src="../static/date_icon.png">
-				<div class="f16 fw-500 mr10">02月02日周四</div>
+				<div class="f16 fw-500 mr10">{{date}}</div>
 				<img class="down_arrow" src="../static/down_arrow.png">
 			</div>
 			<div class="search width-100 flex ac pl12 pr12">
@@ -25,9 +25,11 @@
 			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 1},{'white_b':active_index == 1},{'shadow_back':active_index == 0}]" @click="active_index = 1">全部</div>
 		</div>
 		<!-- 列表 -->
-		<div>
-			<conference-item :info="item" :current_date="date" v-for="item in list"/>
+		<div class="flex-1 scroll-y hide_scrollbar">
+			<conference-item :info="item" :current_date="current_date" v-for="item in list"/>
 		</div>
+		<!-- 日期选择 -->
+		<van-calendar v-model="show_calendar" @confirm="onConfirm" />
 	</div>
 </template>
 <script>
@@ -37,7 +39,9 @@
 	export default{
 		data(){
 			return{
-				date:"2023-03-07",
+				show_calendar:false,		//日期选择框
+				date:"",					//显示的日期格式
+				current_date:"",			//传递的日期格式
 				search:"",					//搜索内容
 				equipment_list:[{
 					equipment_name:"电视",
@@ -85,10 +89,36 @@
 			}
 		},
 		created(){
-			//获取会议室列表
-			this.meetingList();
+			this.formatDate(null);
 		},
 		methods:{
+			//时间格式化
+			formatDate(time) {
+				var date = null;
+				if(time){
+					date = new Date(time);
+				}else{
+					date = new Date();
+				}
+				var y = date.getFullYear();
+				var m = date.getMonth() + 1;
+				m = m < 10 ? '0' + m : m;
+				var d = date.getDate();
+				d = d < 10 ? '0' + d : d;
+				var date = new Date(y, parseInt(m - 1), d);
+				let week =  "日一二三四五六".charAt(date.getDay());
+
+				this.date = `${m}月${d}日周${week}`;
+				this.current_date = `${y}-${m}-${d}`;
+
+				//获取会议室列表
+				this.meetingList();
+			},
+			//确认选中时间
+			onConfirm(date) {
+				this.show_calendar = false;
+				this.formatDate(date);
+			},
 			//点击切换选中设备
 			checkEquipment(index){
 				this.equipment_list[index].is_checked = !this.equipment_list[index].is_checked;
@@ -97,7 +127,7 @@
 			meetingList(){
 				let arg = {
 					flag: 1,
-					day: '2023-03-07',
+					day: this.current_date,
 					equipment_id: '',
 					search: ''
 				}
