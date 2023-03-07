@@ -20,21 +20,24 @@
 			</div>
 		</div>
 		<!-- tab -->
-		<div class="flex">
+		<div class="flex mb2">
 			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 0},{'white_b':active_index == 0},{'shadow_back':active_index == 1}]" @click="active_index = 0">可预定</div>
 			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 1},{'white_b':active_index == 1},{'shadow_back':active_index == 0}]" @click="active_index = 1">全部</div>
 		</div>
 		<!-- 列表 -->
 		<div>
-			<conference-item/>
+			<conference-item :info="item" :current_date="date" v-for="item in list"/>
 		</div>
 	</div>
 </template>
 <script>
 	import ConferenceItem from '../components/conference_item.vue'
+
+	import resource from '../api/resource.js'
 	export default{
 		data(){
 			return{
+				date:"2023-03-07",
 				search:"",					//搜索内容
 				equipment_list:[{
 					equipment_name:"电视",
@@ -78,12 +81,37 @@
 					is_checked:false
 				}],							//设备列表
 				active_index:0,				//默认选中的下标
+				list:[],					//会议室列表
 			}
+		},
+		created(){
+			//获取会议室列表
+			this.meetingList();
 		},
 		methods:{
 			//点击切换选中设备
 			checkEquipment(index){
 				this.equipment_list[index].is_checked = !this.equipment_list[index].is_checked;
+			},
+			//获取会议室列表
+			meetingList(){
+				let arg = {
+					flag: 1,
+					day: '2023-03-07',
+					equipment_id: '',
+					search: ''
+				}
+				resource.meetingList(arg).then(res => {
+					if(res.data.code == 1){
+						let list = res.data.data;
+						list.map(item => {
+							item['equipment_str'] = item.equipment_name.join('/');
+						})
+						this.list = list;
+					}else{
+						this.$toast(res.data.msg);
+					}
+				})
 			}
 		},
 		components:{

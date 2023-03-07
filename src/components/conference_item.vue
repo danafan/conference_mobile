@@ -1,20 +1,20 @@
 <template>
-	<div class="white_b pt10 pr10 pb25 pl10">
+	<div class="white_b pt10 pr10 pb25 pl10 mb4">
 		<div class="flex jsb mb10">
 			<div class="flex fc jsb f14 text_color">
-				<div class="fw-500">国泰16楼2号会议室</div>
-				<div>投影仪/白板</div>
+				<div class="fw-500">{{info.meeting_room_name}}</div>
+				<div>{{info.equipment_str}}</div>
 				<div class="flex ac">
 					<img class="user_icon mr2" src="../static/user_icon.png">
-					<div class="mr10">15人</div>
+					<div class="mr10">{{info.limit_num}}人</div>
 					<img class="location_icon mr2" src="../static/location_icon.png">
-					<div>国泰科技大厦</div>
+					<div>{{info.meeting_address}}</div>
 				</div>
 			</div>
-			<img class="image border" src="../static/record_icon.png">
+			<img class="image" :src="domain + info.meeting_image">
 		</div>
 		<div class="select_time flex">
-			<div class="time_item relative" :class="[{'right_border':index > 0 && index%2 == 1 && index != number_list.length - 1},{'is_expire':item.is_expire},{'be_booked':item.be_booked}]" v-for="(item,index) in number_list">
+			<div class="time_item relative" :class="[{'right_border':index > 0 && index%2 == 1 && index != number_list.length - 1},{'be_booked':item.be_booked},{'is_expire':item.is_expire}]" v-for="(item,index) in number_list">
 				<div class="absolute number f12 text_color" :class="[{'left':index == 0},{'re_left':item.point_time == 8 || item.point_time == 9}]">{{item.point_time}}</div>
 			</div>
 		</div>
@@ -26,27 +26,18 @@
 			return {
 				number_list:[{
 					point_time:7,
-					is_expire:false,
-					be_booked:false,
-					user_name:"",
 					interval:"07:00~07:30",
 				},{
 					point_time:8,
 					interval:"07:30~08:00",
 				},{
 					point_time:null,
-					is_expire:true,
-					be_booked:false,
-					user_name:"",
 					interval:"08:00~08:30",
 				},{
 					point_time:9,
 					interval:"08:30~09:00",
 				},{
 					point_time:null,
-					is_expire:false,
-					be_booked:true,
-					user_name:"彪子",
 					interval:"09:00~09:30",
 				},{
 					point_time:10,
@@ -132,8 +123,98 @@
 				}],
 			}
 		},
-		methods:{
+		props:{
+			//单个会议室
+			info:{
+				type:Object,
+				default:() => {
 
+				}
+			},
+			//当前选中的时间
+			current_date:{
+				type:String,
+				default:""
+			},
+		},
+		computed:{
+			//图片前缀
+			domain(){
+				return this.$store.state.domain;
+			}
+		},
+		created(){
+			//设置默认状态
+			this.filterTime();
+		},
+		methods:{
+			//设置默认状态
+			filterTime(){
+				if(this.info.meeting_records.length > 0){
+					this.info.meeting_records.map(r_item => {
+						var arr = [];
+						this.number_list.map((item,index) => {
+							let start_time = item.interval.split('~')[0];
+							let end_time = item.interval.split('~')[1];
+							let arg = this.getStatus(start_time,end_time);
+							for(let k in arg){
+								item[k] = arg[k];
+							}
+
+							if(r_item.start_time == item.arg_start_time && r_item.end_time == item.arg_end_time){
+								arr[0] = index;
+								arr[1] = index;
+							}else if(r_item.start_time == item.arg_start_time || r_item.end_time == item.arg_end_time){
+								arr.push(index)
+							}
+						})
+						this.number_list.map((item,index) => {
+							if(index >= arr[0] && index <= arr[1]){
+								item['be_booked'] = true;
+								item['user_name'] = r_item.admin_name;
+							}
+						})
+					})
+				}else{
+					this.number_list.map((item,index) => {
+						let start_time = item.interval.split('~')[0];
+						let end_time = item.interval.split('~')[1];
+						let arg = this.getStatus(start_time,end_time);
+						item['be_booked'] = false;
+						for(let k in arg){
+							item[k] = arg[k];
+						}
+					})
+				}
+			},
+			//处理每一格的时间
+			getStatus(start_time,end_time){
+				var now = new Date(); 				//当前日期  
+				var nowYear = now.getYear(); 		//当前年 
+				nowYear += (nowYear < 2000) ? 1900 : 0;
+				var nowMonth = now.getMonth()<10?`0${now.getMonth() + 1}`:now.getMonth() + 1; 		//当前月 
+				var nowDay = now.getDate()<10?`0${now.getDate()}`:now.getDate(); 		//当前日 
+				var nowHours = now.getHours();  	//当前小时
+				var nowMinutes = now.getMinutes();  //当前分钟
+				var Seconds = now.getSeconds();     //当前秒
+
+				//当前时间
+				let current_time = this.current_date == `${nowYear}-${nowMonth}-${nowDay}`?`${nowYear}-${nowMonth}-${nowDay} ${nowHours}:${nowMinutes}:${Seconds}`:`${this.current_date} 00:00:00`;
+				//指定的开始时间
+				let set_start_time = `${this.current_date} ${start_time}:00`;
+				//指定的结束时间
+				let set_end_time = `${this.current_date} ${end_time}:00`;
+
+				//当前时间是否超出指定的结束时间
+				let is_expire = new Date(current_time).getTime() > new Date(set_end_time).getTime();
+
+				let arg = {
+					is_expire:is_expire,				//是否过期
+					arg_start_time:set_start_time,		//开始时间
+					arg_end_time:set_end_time			//结束时间
+				}
+				return arg;
+			},
 		}
 	}
 </script>
