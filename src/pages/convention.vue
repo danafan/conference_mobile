@@ -12,10 +12,10 @@
 				<input class="search_input flex-1" v-model="search" placeholder="搜索">
 			</div>
 			<div class="width-100 flex jsb mt20 x_scroll">
-				<div class="flex ac mr12" v-for="item in equipment_list">
+				<div class="flex ac mr12" v-for="(item,index) in equipment_list" @click="checkEquipment(index)">
 					<img class="select_icon mr7" src="../static/select_ed.png" v-if="item.is_checked">
 					<img class="select_icon mr7" src="../static/select_dai.png" v-else>
-					<div class="f14 text_color space_nowrap">{{item.equipment_name}}</div>
+					<div class="f14 text_color">{{item.equipment_name}}</div>
 				</div>
 			</div>
 		</div>
@@ -24,9 +24,14 @@
 			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 0},{'white_b':active_index == 0},{'shadow_back':active_index == 1}]" @click="active_index = 0">可预定</div>
 			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 1},{'white_b':active_index == 1},{'shadow_back':active_index == 0}]" @click="active_index = 1">全部</div>
 		</div>
+		<!-- 列表 -->
+		<div>
+			<conference-item/>
+		</div>
 	</div>
 </template>
 <script>
+	import ConferenceItem from '../components/conference_item.vue'
 	export default{
 		data(){
 			return{
@@ -34,7 +39,7 @@
 				equipment_list:[{
 					equipment_name:"电视",
 					equipment_id:'1',
-					is_checked:true
+					is_checked:false
 				},{
 					equipment_name:"电话",
 					equipment_id:'2',
@@ -74,6 +79,15 @@
 				}],							//设备列表
 				active_index:0,				//默认选中的下标
 			}
+		},
+		methods:{
+			//点击切换选中设备
+			checkEquipment(index){
+				this.equipment_list[index].is_checked = !this.equipment_list[index].is_checked;
+			}
+		},
+		components:{
+			ConferenceItem
 		}
 	}
 </script>
