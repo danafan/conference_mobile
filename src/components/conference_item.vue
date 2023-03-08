@@ -13,7 +13,7 @@
 			</div>
 			<img class="image" :src="domain + info.meeting_image">
 		</div>
-		<div class="select_time flex">
+		<div class="select_time flex" @click="checkTime(info)">
 			<div class="time_item relative" :class="[{'right_border':index > 0 && index%2 == 1 && index != number_list.length - 1},{'be_booked':item.be_booked},{'is_expire':item.is_expire}]" v-for="(item,index) in number_list">
 				<div class="absolute number f12 text_color" :class="[{'left':index == 0},{'re_left':item.point_time == 8 || item.point_time == 9}]">{{item.point_time}}</div>
 			</div>
@@ -216,6 +216,14 @@
 				}
 				return arg;
 			},
+			//点击时间条预定
+			checkTime(info){
+				let v = {
+					info:info,
+					number_list:this.number_list
+				}
+				this.$emit('checkTime',v);
+			}
 		}
 	}
 </script>

@@ -21,15 +21,46 @@
 		</div>
 		<!-- tab -->
 		<div class="flex mb2">
-			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 0},{'white_b':active_index == 0},{'shadow_back':active_index == 1}]" @click="active_index = 0">可预定</div>
-			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 1},{'white_b':active_index == 1},{'shadow_back':active_index == 0}]" @click="active_index = 1">全部</div>
+			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 1},{'white_b':active_index == 1},{'shadow_back':active_index == 0}]" @click="active_index = 1">可预定</div>
+			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 0},{'white_b':active_index == 0},{'shadow_back':active_index == 1}]" @click="active_index = 0">全部</div>
 		</div>
 		<!-- 列表 -->
 		<div class="flex-1 scroll-y hide_scrollbar">
-			<conference-item :info="item" :current_date="current_date" v-for="item in list"/>
+			<conference-item :info="item" :current_date="current_date" @checkTime="checkTime" v-for="item in list"/>
 		</div>
 		<!-- 日期选择 -->
 		<van-calendar v-model="show_calendar" @confirm="onConfirm" />
+		<!-- 时间选择 -->
+		<van-action-sheet v-model="show_sheet" :closeable="false">
+			<div class="pt15">
+				<div class="pl15">
+					<div class="f16 fw-500 text_color mb4">{{title_info.meeting_room_name}}</div>
+					<div class="f14 dark_color mb4">{{title_info.equipment_str}}</div>
+					<div class="f14 dark_color flex ac">
+						<img class="user_icon mr2" src="../static/user_icon.png">
+						<div>{{title_info.limit_num}}人</div>
+					</div>
+				</div>
+				<div class="time_list pl15">
+					<div class="time_item f14 flex ac jsb pr15" v-for="(item,index) in time_list" @click="checkItem(index)">
+						<div class="flex ac">
+							<img class="select_icon mr7" src="../static/select_hui.png" v-if="item.is_expire">
+							<img class="select_icon mr7" src="../static/select_dis.png" v-if="item.be_booked">
+							<img class="select_icon mr7" src="../static/select_dai.png" v-if="!item.be_booked && !item.is_expire && !item.is_active">
+							<img class="select_icon mr7" src="../static/select_ed.png" v-if="item.is_active">
+							<div class="text_color" :class="{'dark_color':item.is_expire || item.be_booked}">{{item.interval}}</div>
+						</div>
+						<div class="dark_color" v-if="item.is_expire">已过期</div>
+						<div class="dark_color" v-if="item.be_booked">
+							已被<span class="user_name">{{item.user_name}}</span>预定
+						</div>
+					</div>
+				</div>
+				<div class="button_box flex ac jc">
+					<div class="button white_color f15 fw-600">立即预定</div>
+				</div>
+			</div>
+		</van-action-sheet>
 	</div>
 </template>
 <script>
@@ -43,55 +74,45 @@
 				date:"",					//显示的日期格式
 				current_date:"",			//传递的日期格式
 				search:"",					//搜索内容
-				equipment_list:[{
-					equipment_name:"电视",
-					equipment_id:'1',
-					is_checked:false
-				},{
-					equipment_name:"电话",
-					equipment_id:'2',
-					is_checked:false
-				},{
-					equipment_name:"投影",
-					equipment_id:'3',
-					is_checked:false
-				},{
-					equipment_name:"白板",
-					equipment_id:'4',
-					is_checked:false
-				},{
-					equipment_name:"视频",
-					equipment_id:'5',
-					is_checked:false
-				},{
-					equipment_name:"电视",
-					equipment_id:'1',
-					is_checked:false
-				},{
-					equipment_name:"电话",
-					equipment_id:'2',
-					is_checked:false
-				},{
-					equipment_name:"投影",
-					equipment_id:'3',
-					is_checked:false
-				},{
-					equipment_name:"白板",
-					equipment_id:'4',
-					is_checked:false
-				},{
-					equipment_name:"视频",
-					equipment_id:'5',
-					is_checked:false
-				}],							//设备列表
-				active_index:0,				//默认选中的下标
+				equipment_list:[],			//设备列表
+				active_index:1,				//默认选中的下标
 				list:[],					//会议室列表
+				show_sheet:false,			//是否显示预定弹窗
+				title_info:{},				//顶部信息
+				time_list:[],				//时间列表
 			}
 		},
 		created(){
 			this.formatDate(null);
+			//获取设备列表
+			this.ajaxEquipment();
+		},
+		watch:{
+			//监听输入框变化
+			search:function(n,o){
+				//获取会议室列表
+				this.meetingList();
+			},
+			//监听tab切换
+			active_index:function(n,o){
+				//获取会议室列表
+				this.meetingList();
+			},
 		},
 		methods:{
+			//获取设备列表
+			ajaxEquipment(){
+				resource.ajaxEquipment().then(res => {
+					if(res.data.code == 1){
+						this.equipment_list = res.data.data;
+						this.equipment_list.map(item => {
+							item['is_checked'] = false;
+						})
+					}else{
+						this.$message.warning(res.data.msg);
+					}
+				})
+			},
 			//时间格式化
 			formatDate(time) {
 				var date = null;
@@ -121,16 +142,28 @@
 			},
 			//点击切换选中设备
 			checkEquipment(index){
-				this.equipment_list[index].is_checked = !this.equipment_list[index].is_checked;
+				let new_obj = JSON.parse(JSON.stringify(this.equipment_list[index]));
+				new_obj.is_checked = !new_obj.is_checked;
+				this.$set(this.equipment_list,index,new_obj);
+				//获取会议室列表
+				this.meetingList();
 			},
 			//获取会议室列表
 			meetingList(){
 				let arg = {
-					flag: 1,
+					flag: this.active_index,
 					day: this.current_date,
 					equipment_id: '',
-					search: ''
+					search: this.search
 				}
+				let equipment_ids = [];
+				this.equipment_list.map(item => {
+					if(item.is_checked == true){
+						equipment_ids.push(item.equipment_id)
+					}
+				})
+				arg['equipment_id'] = equipment_ids.join(',');
+				this.list = [];
 				resource.meetingList(arg).then(res => {
 					if(res.data.code == 1){
 						let list = res.data.data;
@@ -142,6 +175,24 @@
 						this.$toast(res.data.msg);
 					}
 				})
+			},
+			//点击某一个会议选择时间
+			checkTime(v){
+				this.title_info = v.info;
+				let number_list = v.number_list;
+				number_list.map(item => {
+					item['is_active'] = false;
+				})
+				this.time_list = number_list;
+				this.show_sheet = true;
+			},
+			//点击选择某一个时间
+			checkItem(index){
+				let new_obj = this.time_list[index];
+				if(!new_obj.is_expire && !new_obj.be_booked){
+					new_obj.is_active = !new_obj.is_active;
+				}
+				this.$set(this.time_list,index,new_obj);
 			}
 		},
 		components:{
@@ -187,5 +238,31 @@
 }
 .shadow_back{
 	background: linear-gradient(180deg, #DAE6FF 0%, #F8FBFF 100%);
+}
+.user_icon{
+	width: 12px;
+	height: 12px;
+}
+.time_list{
+	max-height: 314px;
+	overflow-y: scroll;
+	.time_item{
+		height: 44px;
+		border-bottom: 1px solid #F0F0F0;
+	}
+}
+.user_name{
+	color: #6670FD;
+}
+.button_box{
+	height: 86px;
+	.button{
+		width: 311px;
+		text-align:center;
+		height: 45px;
+		line-height: 45px;
+		background: #6670FD;
+		border-radius: 23px;
+	}
 }
 </style>
