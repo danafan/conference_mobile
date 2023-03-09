@@ -80,6 +80,8 @@
 				show_sheet:false,			//是否显示预定弹窗
 				title_info:{},				//顶部信息
 				time_list:[],				//时间列表
+				start_index:-1,				//第一次选中的下标
+				frequency:0,				//当前有效点击次数
 			}
 		},
 		created(){
@@ -186,14 +188,80 @@
 				this.time_list = number_list;
 				this.show_sheet = true;
 			},
-			//点击选择某一个时间
+			//点击选择某个时间段
 			checkItem(index){
-				let new_obj = this.time_list[index];
-				if(!new_obj.is_expire && !new_obj.be_booked){
-					new_obj.is_active = !new_obj.is_active;
+				//点击的是已过期或者被预定的，直接不向下执行
+				if(this.time_list[index].is_expire || this.time_list[index].be_booked){
+					return;
 				}
-				this.$set(this.time_list,index,new_obj);
-			}
+				var new_list = JSON.parse(JSON.stringify(this.time_list));
+				if(this.frequency == 0){			//第一次点击
+					new_list.map((item,i) => {
+						if(index == i){
+							item.is_active = true;
+						}else{
+							item.is_active = false;
+						}
+					})
+					this.start_index = index;
+					this.frequency = 1;
+				}else if(this.frequency == 1){	//第二次点击
+					if(this.start_index == index){
+						new_list[index].is_active = false;
+						this.time_list = new_list;
+						this.frequency = 0;
+						return;
+					}
+					if(this.getNum(index).is_active == 1 && this.getNum(index).is_expire == 0 && this.getNum(index).be_booked == 0){
+						new_list.map((item,i_i) => {
+							if(i_i >= this.getNum(index).s_index && i_i <= this.getNum(index).e_index){
+								item.is_active = true;
+							}
+						})
+						this.frequency = 0;
+					}
+				}
+				this.time_list = new_list;
+			},
+			//获取被预定、已过期、已选中的数量
+			getNum(index){
+				var new_list = JSON.parse(JSON.stringify(this.time_list));
+				var min_index = Math.min(this.start_index,index);
+				let arr = [];
+				let s_index = -1;
+				let e_index = -1;
+				if(min_index == this.start_index){
+					arr = new_list.slice(min_index,index + 1);
+					s_index = this.start_index;
+					e_index = index;
+				}
+				if(min_index == index){
+					arr = new_list.slice(index,this.start_index + 1);
+					s_index = index;
+					e_index = this.start_index;
+				}
+
+				let not_select_arr1 = arr.filter(item => {
+					return item.is_active;
+				})
+
+				let not_select_arr2 = arr.filter(item => {
+					return item.is_expire;
+				})
+
+				let not_select_arr3 = arr.filter(item => {
+					return item.be_booked;
+				})
+
+				let arg = {
+					is_active:not_select_arr1.length,
+					is_expire:not_select_arr2.length,
+					be_booked:not_select_arr3.length,
+					s_index:s_index,
+					e_index:e_index
+				}
+				return arg;
+			},	
 		},
 		components:{
 			ConferenceItem
