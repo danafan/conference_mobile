@@ -57,7 +57,7 @@
 					</div>
 				</div>
 				<div class="button_box flex ac jc">
-					<div class="button white_color f15 fw-600">立即预定</div>
+					<div class="button white_color f15 fw-600" @click="confirmFn">立即预定</div>
 				</div>
 			</div>
 		</van-action-sheet>
@@ -128,8 +128,8 @@
 				m = m < 10 ? '0' + m : m;
 				var d = date.getDate();
 				d = d < 10 ? '0' + d : d;
-				var date = new Date(y, parseInt(m - 1), d);
-				let week =  "日一二三四五六".charAt(date.getDay());
+				var new_date = new Date(y, parseInt(m - 1), d);
+				let week =  "日一二三四五六".charAt(new_date.getDay());
 
 				this.date = `${m}月${d}日周${week}`;
 				this.current_date = `${y}-${m}-${d}`;
@@ -262,6 +262,20 @@
 				}
 				return arg;
 			},	
+			//点击立即预订
+			confirmFn(){
+				let arr = this.time_list.filter(item => {
+					return item.is_active;
+				})
+				if(arr.length == 0){
+					this.$toast('请选择会议时间！')
+				}else{
+					let start_time = arr[0].arg_start_time;
+					let end_time = arr[arr.length - 1].arg_end_time;
+					let title = this.title_info.meeting_room_name;
+					this.$router.push(`/create_metting?start_time=${start_time}&end_time=${end_time}&title=${title}`)
+				}
+			}
 		},
 		components:{
 			ConferenceItem
