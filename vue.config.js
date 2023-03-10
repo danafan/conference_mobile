@@ -13,8 +13,8 @@ module.exports = {
 		},
 		host:"127.0.0.1",  
 	},
-	// assetsDir: "web",
-	// publicPath:'../',
+	assetsDir: "phone",
+	publicPath:'../',
 	chainWebpack: (config)=>{
 		config.resolve.alias
 		.set('vendor',resolve('./src/vendor'))
