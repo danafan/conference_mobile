@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { Picker,Calendar,Switch,ActionSheet,DatetimePicker,List,Toast } from "vant";
+import { Picker,Calendar,Switch,ActionSheet,DatetimePicker,List,Toast,Dialog } from "vant";
 import 'vant/lib/index.css';
 Vue.use(Picker)
 Vue.use(Calendar)
@@ -8,5 +8,6 @@ Vue.use(ActionSheet)
 Vue.use(DatetimePicker)
 Vue.use(List)
 Vue.use(Toast)
+Vue.use(Dialog)
 
 

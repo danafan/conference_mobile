@@ -25,9 +25,10 @@
 			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 0},{'white_b':active_index == 0},{'shadow_back':active_index == 1}]" @click="active_index = 0">全部</div>
 		</div>
 		<!-- 列表 -->
-		<div class="flex-1 scroll-y hide_scrollbar">
+		<div class="flex-1 scroll-y hide_scrollbar" v-if="list.length > 0">
 			<conference-item :info="item" :current_date="current_date" @checkTime="checkTime" v-for="item in list"/>
 		</div>
+		<empty-page v-else/>
 		<!-- 日期选择 -->
 		<van-calendar v-model="show_calendar" @confirm="onConfirm" />
 		<!-- 时间选择 -->
@@ -65,6 +66,7 @@
 </template>
 <script>
 	import ConferenceItem from '../components/conference_item.vue'
+	import EmptyPage from '../components/empty_page.vue'
 
 	import resource from '../api/resource.js'
 	export default{
@@ -279,7 +281,8 @@
 			}
 		},
 		components:{
-			ConferenceItem
+			ConferenceItem,
+			EmptyPage
 		}
 	}
 </script>

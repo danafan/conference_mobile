@@ -6,6 +6,7 @@ const convention = resolve=>System.import('@/pages/convention')
 const create_metting = resolve=>System.import('@/pages/create_metting')
 const record = resolve=>System.import('@/pages/record')
 const detail = resolve=>System.import('@/pages/detail')
+const sign_list = resolve=>System.import('@/pages/sign_list')
 
 Vue.use(Router);
 
@@ -35,6 +36,11 @@ const router = new Router({
 		path: '/detail',
 		name:"会议详情",
 		component: detail
+	},
+	{
+		path: '/sign_list',
+		name:"签到详情",
+		component: sign_list
 	},
 	]
 })

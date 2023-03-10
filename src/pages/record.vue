@@ -24,15 +24,17 @@
 			</div>
 			<div class="line"></div>
 			<div class="flex f14">
-				<div class="button flex-1 border_right" v-if="item.cancle_status == 1">取消日程</div>
+				<div class="button flex-1 border_right" v-if="item.cancle_status == 1" @click="cancelFn(item.meeting_id)">取消日程</div>
 				<div class="button flex-1 primary_color fw-500" @click="$router.push(`/detail?meeting_id=${item.meeting_id}`)">会议详情</div>
 			</div>
 		</div>
 	</van-list>
+	<empty-page v-else/>
 </div>
 </template>
 <script>
 	import resource from '../api/resource.js'
+	import EmptyPage from '../components/empty_page.vue'
 	export default{
 		data(){
 			return{
@@ -110,13 +112,41 @@
 					}
 				})
 			},
+			//过滤时间
 			filterMeetingTime(start_time,end_time){
 				let year_list = start_time.split(' ')[0].split('-');
 				let year = `${year_list[0]}年${year_list[1]}月${year_list[2]}日`;
 				let start = `${start_time.split(' ')[1].split(':')[0]}:${start_time.split(' ')[1].split(':')[1]}`;
 				let end = `${end_time.split(' ')[1].split(':')[0]}:${end_time.split(' ')[1].split(':')[1]}`;
 				return `${year} ${start}~${end}`; 
+			},
+			//取消日程
+			cancelFn(meeting_id){
+				this.$dialog.confirm({
+					title: '提示',
+					message: '确认取消日程?',
+				})
+				.then(() => {
+					let arg = {
+						meeting_id:meeting_id
+					}
+					resource.meetingCancle(arg).then(res => {
+						if(res.data.code == 1){
+							this.$toast(res.data.msg);
+							//获取会议记录
+							this.meetingRecord(true);
+						}else{
+							this.$toast(res.data.msg);
+						}
+					})
+				})
+				.catch(() => {
+
+				});
 			}
+		},
+		components:{
+			EmptyPage
 		}
 	}
 </script>

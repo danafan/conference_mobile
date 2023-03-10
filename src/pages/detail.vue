@@ -22,7 +22,7 @@
 					<div>组织人：{{admin_name}}</div>
 					<div>{{meeting_level_name}}</div>
 				</div>
-				<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500">
+				<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click="$router.push(`/sign_list?meeting_id=${meeting_id}`)">
 					<div>邀请{{selected_user.length}}人,{{is_sign_arr.length}}人签到</div>
 					<img class="item_right_arrow" src="../static/right_arrow.png">
 				</div>
