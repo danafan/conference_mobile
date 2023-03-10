@@ -273,7 +273,8 @@
 					let start_time = arr[0].arg_start_time;
 					let end_time = arr[arr.length - 1].arg_end_time;
 					let title = this.title_info.meeting_room_name;
-					this.$router.push(`/create_metting?start_time=${start_time}&end_time=${end_time}&title=${title}`)
+					let id = this.title_info.meeting_room_id;
+					this.$router.push(`/create_metting?start_time=${start_time}&end_time=${end_time}&title=${title}&id=${id}`)
 				}
 			}
 		},

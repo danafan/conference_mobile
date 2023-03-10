@@ -186,7 +186,6 @@
 						}
 					})
 				}
-				console.log(this.number_list)
 			},
 			//处理每一格的时间
 			getStatus(start_time,end_time){
