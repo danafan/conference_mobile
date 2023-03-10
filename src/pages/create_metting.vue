@@ -1,41 +1,53 @@
 <template>
-	<div class="container pt3 pb3 text_color">
-		<div class="white_b pl15 pr15 pb12 mb4">
-			<input v-model="title" class="title_input f16 fw-500" placeholder="会议标题">
-			<div class="flex ac jsb">
-				<div class="f14 fw-500" @click="checkDate('start')">
-					<div>{{view_start_date}}</div>
-					<div>{{view_start_hm}}</div>
+	<div class="container pt3 pb3 text_color flex fc">
+		<div class="flex-1 scroll-y hide_scrollbar">
+			<div class="white_b pl15 pr15 pb12 mb4">
+				<input v-model="title" class="title_input f16 fw-500" placeholder="会议标题">
+				<div class="flex ac jsb">
+					<div class="f14 fw-500" @click="checkDate('start')">
+						<div>{{view_start_date}}</div>
+						<div>{{view_start_hm}}</div>
+					</div>
+					<img class="right_arrow" src="../static/right_arrow.png">
+					<div class="f14 fw-500" @click="checkDate('end')">
+						<div>{{view_end_date}}</div>
+						<div>{{view_end_hm}}</div>
+					</div>
 				</div>
-				<img class="right_arrow" src="../static/right_arrow.png">
-				<div class="f14 fw-500" @click="checkDate('end')">
-					<div>{{view_end_date}}</div>
-					<div>{{view_end_hm}}</div>
+			</div>
+			<div class="white_b">
+				<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click="checkSheet('1')">
+					<div>{{meeting_level_name}}</div>
+					<img class="item_right_arrow" src="../static/right_arrow.png">
+				</div>
+				<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click.stop>
+					<div>添加参与人</div>
+					<div class="flex ac" @click="checkUser">
+						<div class="dark_color">{{userInfo.real_name}}等{{selected_user.length}}人</div>
+						<img class="item_right_arrow" src="../static/right_arrow.png">
+					</div>
+				</div>
+				<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click="checkSheet('2')">
+					<div>{{room_name}}</div>
+					<img class="item_right_arrow" src="../static/right_arrow.png">
+				</div>
+				<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click="checkSheet('3')">
+					<div>{{notice_type_name}}</div>
+					<img class="item_right_arrow" src="../static/right_arrow.png">
+				</div>
+				<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click.stop>
+					<div>单聊推送</div>
+					<van-switch v-model="is_chat_notice" size="22" :active-value="1" :inactive-value="0" active-color="#2A37FD" inactive-color="#dcdee0" />
+				</div>
+				<div class="pl15 pr15 pt15 pb15 f14 fw-500">
+					<textarea class="textarea" :rows="5" v-model="remark" placeholder="请输入描述"></textarea>
 				</div>
 			</div>
 		</div>
-		<div class="white_b">
-			<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click="checkSheet('1')">
-				<div>{{meeting_level_name}}</div>
-				<img class="item_right_arrow" src="../static/right_arrow.png">
-			</div>
-			<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500">
-				<div>添加参与人</div>
-				<img class="item_right_arrow" src="../static/right_arrow.png">
-			</div>
-			<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click="checkSheet('2')">
-				<div>{{room_name}}</div>
-				<img class="item_right_arrow" src="../static/right_arrow.png">
-			</div>
-			<div class="menu_item flex ac jsb pl15 pr15 f14 fw-500" @click="checkSheet('3')">
-				<div>{{notice_type_name}}</div>
-				<img class="item_right_arrow" src="../static/right_arrow.png">
-			</div>
-			<div class="pl15 pr15 pt15 pb15 f14 fw-500">
-				<textarea class="textarea" :rows="5" v-model="remark" placeholder="请输入描述"></textarea>
-			</div>
+		<div class="bottom_content flex ac jc">
+			<div class="over_button white_color f15 fw-600" @click="confirmFn">完成</div>
 		</div>
-		<div class="over_button white_color f15 fw-600">完成</div>
+		
 		<!-- 切换时间 -->
 		<van-action-sheet @close="currentDate = null" v-model="show_check_date">
 			<van-datetime-picker
@@ -52,7 +64,7 @@
 		<!-- 级别/会议室/通知类型 -->
 		<van-action-sheet @close="default_index = -1" v-model="show_sheet">
 			<van-picker
-			title="标题"
+			:title="sheet_title"
 			show-toolbar
 			:default-index="default_index"
 			:columns="data_list"
@@ -63,6 +75,8 @@
 	</div>
 </template>
 <script>
+	import * as dd from 'dingtalk-jsapi';
+
 	import resource from '../api/resource.js'
 	export default{
 		data(){
@@ -80,6 +94,7 @@
 				picker_title:"",		//弹窗标题（显示周）
 				currentDate: null,		//当前时间
 				show_sheet:false,		//选择级别/会议室/通知类型弹窗
+				sheet_title:"",			//弹窗标题
 				sheet_type:"",			//弹窗类型（1:级别；2:会议室：3:通知类型）
 				data_list:[],			//弹窗列表
 				default_index:-1,		//默认选中的选项下标
@@ -96,6 +111,9 @@
 				notice_type_id:"",			//选中的通知类型id
 				notice_type_index:-1,		//默认选中的通知类型下标
 				remark:"",					//描述内容
+				is_chat_notice:0,			//是否单聊通知
+				selected_user:[],			//已选中的用户
+				pickedUsers:[],				//除本人外的其余人的ID
 			}
 		},
 		created(){
@@ -105,12 +123,28 @@
 			this.room_id = query.id;
 			this.start_time = query.start_time;
 			this.end_time = query.end_time;
+			//设置当前选中的参会人员
+			this.setPickedUsers([]);
 			//设置开始时间（展示）
 			this.setStartDate();
 			//设置开始时间（展示）
 			this.setEndDate();
 			//获取预定信息
 			this.addMeetingGet();
+		},
+		computed:{
+			//用户信息
+			userInfo(){
+				return this.$store.state.userInfo;
+			},
+			//appId
+			appId(){
+				return this.$store.state.appId;
+			},
+			//corpId
+			corpId(){
+				return this.$store.state.corpId;
+			},
 		},
 		methods:{
 			//获取预定信息
@@ -155,6 +189,7 @@
 						this.data_list.push(new_obj)
 					})
 					this.default_index = this.meeting_level_index;
+					this.sheet_title = "会议级别";
 					break;
 					case '2':
 					this.room_list.map(item => {
@@ -165,6 +200,7 @@
 						this.data_list.push(new_obj)
 					})
 					this.default_index = this.room_index;
+					this.sheet_title = "会议室";
 					break;
 					case '3':
 					this.notice_type_list.map(item => {
@@ -175,6 +211,7 @@
 						this.data_list.push(new_obj)
 					})
 					this.default_index = this.notice_type_index;
+					this.sheet_title = "消息通知";
 					break;
 					default:
 					return;
@@ -278,6 +315,70 @@
 			setEndDate(){
 				this.view_end_date = this.getYMD(this.end_time) + ' ' + this.getWeek(this.end_time);
 				this.view_end_hm = this.getHM(this.end_time);
+			},
+			//点击批量选择参会人员
+			checkUser(){
+				dd.ready(() => {
+					dd.biz.contact.complexPicker({
+					    title:"选择参会人员",            	//标题
+					    corpId:this.corpId,  			//企业的corpId
+					    multiple:true,            		//是否多选
+					    limitTips:"超出了",          		//超过限定人数返回提示
+					    maxUsers:1000,            		//最大可选人数
+					    pickedUsers:this.pickedUsers,   //已选用户
+					    pickedDepartments:[],          	//已选部门
+					    disabledUsers:[],            	//不可选用户
+					    disabledDepartments:[],        	//不可选部门
+					    requiredUsers:[this.userInfo.user_id],
+					    requiredDepartments:[],        	
+					    appId:this.appId,              	
+					    permissionType:"GLOBAL",          
+					    responseUserOnly:true,         	//返回人，或者返回人和部门
+					    startWithDepartmentId:0 ,   	//仅支持0和-1
+					    onSuccess: (result) => {
+					    	//设置当前选中的参会人员
+					    	this.setPickedUsers(result.users)
+					    },
+					    onFail : function(err) {}
+					});
+				})
+			},
+			//设置当前选中的参会人员
+			setPickedUsers(users){
+				this.selected_user = users;
+				let current_user = {
+					name:this.userInfo.real_name,
+					emplId :this.userInfo.user_id
+				}
+				this.selected_user.unshift(current_user)
+				this.pickedUsers = users.map(item => {
+					return item.emplId;
+				})
+			},
+			//提交预约会议
+			confirmFn(){
+				let arg = {
+					meeting_title:this.title,
+					meeting_room_ids:this.room_id,
+					start_time:this.start_time,
+					end_time:this.end_time,
+					notice_type:this.notice_type_id,
+					meeting_level:this.meeting_level_id,
+					remark:this.remark,
+					is_chat_notice:this.is_chat_notice
+				}
+				let user_ids = this.selected_user.map(item => {
+					return item.emplId
+				})
+				arg['user_ids'] = user_ids.join(',');
+				resource.addMeetingPost(arg).then(res => {
+					if(res.data.code == 1){
+						this.$toast(res.data.msg);
+						this.$router.go(-1);
+					}else{
+						this.$toast(res.data.msg);
+					}
+				})
 			}
 		}
 	}
@@ -308,16 +409,16 @@
 	outline: none;
 	width: 100%;
 }
-.over_button{
-	position: absolute;
-	bottom: 17px;
-	left: 50%;
-	transform: translate(-50%);
-	width: 311px;
-	text-align:center;
-	height: 45px;
-	line-height: 45px;
-	background: #6670FD;
-	border-radius: 23px;
+.bottom_content{
+	height: 80px;
+	.over_button{
+		width: 311px;
+		text-align:center;
+		height: 45px;
+		line-height: 45px;
+		background: #6670FD;
+		border-radius: 23px;
+	}
 }
+
 </style>

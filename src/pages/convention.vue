@@ -44,13 +44,13 @@
 				<div class="time_list pl15">
 					<div class="time_item f14 flex ac jsb pr15" v-for="(item,index) in time_list" @click="checkItem(index)">
 						<div class="flex ac">
-							<img class="select_icon mr7" src="../static/select_hui.png" v-if="item.is_expire">
+							<img class="select_icon mr7" src="../static/select_hui.png" v-if="item.is_expire && !item.be_booked">
 							<img class="select_icon mr7" src="../static/select_dis.png" v-if="item.be_booked">
 							<img class="select_icon mr7" src="../static/select_dai.png" v-if="!item.be_booked && !item.is_expire && !item.is_active">
 							<img class="select_icon mr7" src="../static/select_ed.png" v-if="item.is_active">
 							<div class="text_color" :class="{'dark_color':item.is_expire || item.be_booked}">{{item.interval}}</div>
 						</div>
-						<div class="dark_color" v-if="item.is_expire">已过期</div>
+						<div class="dark_color" v-if="item.is_expire && !item.be_booked">已过期</div>
 						<div class="dark_color" v-if="item.be_booked">
 							已被<span class="user_name">{{item.user_name}}</span>预定
 						</div>

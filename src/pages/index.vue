@@ -5,7 +5,7 @@
 			<img class="menu_icon mr10" src="../static/yy_icon.png">
 			<div class="text_color fw-500 f16">预约会议室</div>
 		</div>
-		<div class="width-100 menu_item white_b flex ac pl10">
+		<div class="width-100 menu_item white_b flex ac pl10" @click="$router.push('/record')">
 			<img class="menu_icon mr10" src="../static/record_icon.png">
 			<div class="text_color fw-500 f16">会议室记录</div>
 		</div>

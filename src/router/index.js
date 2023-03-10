@@ -4,6 +4,8 @@ import Router from 'vue-router'
 const index = resolve=>System.import('@/pages/index')
 const convention = resolve=>System.import('@/pages/convention')
 const create_metting = resolve=>System.import('@/pages/create_metting')
+const record = resolve=>System.import('@/pages/record')
+const detail = resolve=>System.import('@/pages/detail')
 
 Vue.use(Router);
 
@@ -23,6 +25,16 @@ const router = new Router({
 		path: '/create_metting',
 		name:"新建日程",
 		component: create_metting
+	},
+	{
+		path: '/record',
+		name:"会议记录",
+		component: record
+	},
+	{
+		path: '/detail',
+		name:"会议详情",
+		component: detail
 	},
 	]
 })
