@@ -14,13 +14,17 @@ const router = new Router({
 	routes: [
 	{
 		path: '/index',
-		name:"首页",
+		name:"智能会议室",
 		component: index
 	},
 	{
 		path: '/convention',
 		name:"预约会议室",
-		component: convention
+		component: convention,
+		meta:{
+			isUseCache:false,
+			keepAlive:true
+		}
 	},
 	{
 		path: '/create_metting',
@@ -30,7 +34,11 @@ const router = new Router({
 	{
 		path: '/record',
 		name:"会议记录",
-		component: record
+		component: record,
+		meta:{
+			isUseCache:false,
+			keepAlive:true
+		}
 	},
 	{
 		path: '/detail',

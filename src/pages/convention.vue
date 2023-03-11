@@ -25,10 +25,10 @@
 			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 0},{'white_b':active_index == 0},{'shadow_back':active_index == 1}]" @click="active_index = 0">全部</div>
 		</div>
 		<!-- 列表 -->
-		<div class="flex-1 scroll-y hide_scrollbar" v-if="list.length > 0">
+		<div class="flex-1 scroll-y hide_scrollbar" id="vanList" v-show="list.length > 0">
 			<conference-item :info="item" :current_date="current_date" @checkTime="checkTime" v-for="item in list"/>
 		</div>
-		<empty-page v-else/>
+		<empty-page v-show="list.length == 0"/>
 		<!-- 日期选择 -->
 		<van-calendar v-model="show_calendar" @confirm="onConfirm" />
 		<!-- 时间选择 -->
@@ -84,12 +84,55 @@
 				time_list:[],				//时间列表
 				start_index:-1,				//第一次选中的下标
 				frequency:0,				//当前有效点击次数
+				scrollTop:0,
+				vanList:null
 			}
 		},
-		created(){
-			this.formatDate(null);
-			//获取设备列表
-			this.ajaxEquipment();
+		mounted(){
+			this.vanList = document.getElementById('vanList');
+			this.vanList.addEventListener('scroll', () => {
+				this.scrollTop = this.vanList.scrollTop;
+			})
+		},
+		activated(){
+			//页面来源
+			if(!this.$route.meta.isUseCache){
+				this.date = "";					//显示的日期格式
+				this.current_date = "";			//传递的日期格式
+				this.search = "";					//搜索内容
+				this.equipment_list = [];			//设备列表
+				this.active_index = 1;				//默认选中的下标
+				this.list = [];					//会议室列表
+				this.title_info = {};				//顶部信息
+				this.time_list = [];				//时间列表
+				this.start_index = -1;				//第一次选中的下标
+				this.frequency = 0;				//当前有效点击次数
+				this.scrollTop = 0;
+				this.vanList = null;
+				//设置默认日期
+				this.formatDate(null);
+				//获取设备列表
+				this.ajaxEquipment();
+			}else{
+				//获取会议室列表
+				this.meetingList();
+			}
+			this.show_calendar = false;		//日期选择框
+			this.show_sheet = false;			//是否显示预定弹窗
+			this.$route.meta.isUseCache = false;
+		},
+		beforeRouteLeave(to,from,next){
+			if(to.path == '/create_metting'){	//样衣详情/样衣绑定
+				from.meta.isUseCache = true;
+			}else{
+				from.meta.isUseCache = false;
+			}
+			next();
+		},
+		beforeDestroy() {
+			this.vanList.removeEventListener('scroll', (res) => {
+				this.scrollTop = this.vanList.scrollTop;
+			}, false)
 		},
 		watch:{
 			//监听输入框变化

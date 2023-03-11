@@ -34,10 +34,20 @@
     },
     watch:{
       $route:function(n,o){
-        document.title = n.name;
+        //设置标题栏文字
+        this.setTabBarTitle(n.name)
       }
     },
     methods: {
+      //设置标题栏文字
+      setTabBarTitle(title){
+        // dd.biz.navigation.setTitle({
+        //      title : title,//控制标题文本，空字符串表示显示默认文本
+        //      onSuccess : function(result) {
+        //      },
+        //      onFail : function(err) {}
+        //     });
+      },
       //获取钉钉鉴权参数
       getConfig(type){
         resource.getConfig({from:'phone'}).then(res => {

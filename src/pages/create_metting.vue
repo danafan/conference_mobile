@@ -2,7 +2,7 @@
 	<div class="container pt3 pb3 text_color flex fc">
 		<div class="flex-1 scroll-y hide_scrollbar">
 			<div class="white_b pl15 pr15 pb12 mb4">
-				<input v-model="title" class="title_input f16 fw-500" placeholder="会议标题">
+				<input v-model="title" class="title_input width-100 f16 fw-500" placeholder="会议标题">
 				<div class="flex ac jsb">
 					<div class="f14 fw-500" @click="checkDate('start')">
 						<div>{{view_start_date}}</div>
@@ -49,16 +49,18 @@
 		</div>
 		
 		<!-- 切换时间 -->
-		<van-action-sheet @close="currentDate = null" v-model="show_check_date">
+		<van-action-sheet @close="currentTime = null" v-model="show_check_date">
 			<van-datetime-picker
-			v-model="currentDate"
-			type="datetime"
+			v-model="currentTime"
+			type="time"
 			:filter="filterMinute"
-			@cancel="show_check_date = false"
-			@confirm="confirmDate"
-			@change="changeDate"
-			:title="picker_title"
-			:min-date="minDate"
+			title="选择时间"
+			:min-hour="minHour"
+			:max-hour="maxHour"
+			:max-minute="maxM"
+			:min-minute="minM"
+			@change="changeTime"
+			@confirm="confirmTime"
 			/>
 		</van-action-sheet>
 		<!-- 级别/会议室/通知类型 -->
@@ -90,9 +92,11 @@
 				view_end_hm:"",			//显示的结束时间下面
 				show_check_date:false,	//切换时间弹窗是否显示
 				date_type:'',			//点击的时间类型
-				minDate: new Date(),	//最小可选时间
-				picker_title:"",		//弹窗标题（显示周）
-				currentDate: null,		//当前时间
+				minHour: "7",			//最小可选小时
+				maxHour:"23",			//最大可选小时
+				minM:0,					//最小可选分钟
+				maxM:30,				//最大可选分钟
+				currentTime: null,		//当前时间
 				show_sheet:false,		//选择级别/会议室/通知类型弹窗
 				sheet_title:"",			//弹窗标题
 				sheet_type:"",			//弹窗类型（1:级别；2:会议室：3:通知类型）
@@ -111,7 +115,7 @@
 				notice_type_id:"",			//选中的通知类型id
 				notice_type_index:-1,		//默认选中的通知类型下标
 				remark:"",					//描述内容
-				is_chat_notice:0,			//是否单聊通知
+				is_chat_notice:1,			//是否单聊通知
 				selected_user:[],			//已选中的用户
 				pickedUsers:[],				//除本人外的其余人的ID
 			}
@@ -274,37 +278,46 @@
 			checkDate(type){
 				this.date_type = type;
 				if(this.date_type == 'start'){
-					this.currentDate = new Date(this.start_time);
+					this.currentTime = this.start_time.split(' ')[1].split(":").splice(0,2).join(':');
 				}else{
-					this.currentDate = new Date(this.end_time);
+					this.currentTime = this.end_time.split(' ')[1].split(":").splice(0,2).join(':');
 				}
-				this.picker_title = this.getWeek(this.currentDate);
 				this.show_check_date = true;
 			},
-			//点击确认选中时间
-			confirmDate(date){
-				let y = date.getFullYear().toString(); // 年
-			    let m = (date.getMonth() + 1).toString(); // 月
-			    let d = date.getDate().toString(); // 日
-			    let h = date.getHours() < 10?`0${date.getHours().toString()}`:date.getHours().toString(); // 时
-			    let mm = date.getMinutes() < 10?`0${date.getMinutes().toString()}`:date.getMinutes().toString(); // 分
-			    let s = '00'; // 秒
-			    let new_time = `${y}-${m}-${d} ${h}:${mm}:${s}`;
-			    if(this.date_type == 'start'){
-			    	this.start_time = new_time;
-			    	//设置开始时间（展示）
-			    	this.setStartDate();
-			    }else{
-			    	this.end_time = new_time;
-			    	//设置开始时间（展示）
-			    	this.setEndDate();
-			    }
-			    this.show_check_date = false;
-			},
 			//切换时间
-			changeDate(v){
-				let new_date = `${v.getValues()[0]}-${v.getValues()[1]}-${v.getValues()[2]} ${v.getValues()[3]}:${v.getValues()[4]}:00`
-				this.picker_title = this.getWeek(new_date);
+			changeTime(v){
+				if(v.getValues()[0] == '23'){
+					this.maxM = 0;
+				}else{
+					this.maxM = 30;
+				}
+				this.currentTime = `${v.getValues()[0]}:${v.getValues()[1]}`
+			},
+			//判断开始时间是否大于结束时间
+			confirmTime(){
+				if(this.date_type == 'start'){
+					let ss = new Date(`${this.start_time.split(' ')[0]} ${this.currentTime}:00`).getTime();
+					let dd = new Date(`${this.end_time}`).getTime();
+					if(ss >= dd){
+						this.$toast('结束时间必须大于开始时间!')
+					}else{
+						this.start_time = `${this.start_time.split(' ')[0]} ${this.currentTime}:00`;
+						//设置开始时间（展示）
+			    		this.setStartDate();
+						this.show_check_date = false;
+					}
+				}else{
+					let ss = new Date(`${this.start_time}`).getTime();
+					let dd = new Date(`${this.end_time.split(' ')[0]} ${this.currentTime}:00`).getTime();
+					if(ss >= dd){
+						this.$toast('结束时间必须大于开始时间!')
+					}else{
+						this.end_time = `${this.end_time.split(' ')[0]} ${this.currentTime}:00`;
+						//设置开始时间（展示）
+			    		this.setEndDate();
+						this.show_check_date = false;
+					}
+				}
 			},
 			//设置开始时间（展示）
 			setStartDate(){

@@ -14,8 +14,8 @@
 			</div>
 		</div>
 		<!-- 列表 -->
-		<van-list v-model:loading="loading" :finished="finished" @load="loadMore"
-		finished-text="没有更多了" class="flex-1 scroll-y hide_scrollbar" v-if="listArray.length > 0">
+		<van-list id="vanList" v-model:loading="loading" :finished="finished" @load="loadMore"
+		finished-text="没有更多了" class="flex-1 scroll-y hide_scrollbar" v-show="listArray.length > 0">
 		<div class="white_b text_color mb4" v-for="(item,index) in listArray">
 			<div class="item_top flex fc jsb pl15 pt12 pb12">
 				<div class="f16 fw-500">{{item.meeting_title}}</div>
@@ -29,7 +29,7 @@
 			</div>
 		</div>
 	</van-list>
-	<empty-page v-else/>
+	<empty-page  v-show="listArray.length == 0"/>
 </div>
 </template>
 <script>
@@ -58,6 +58,8 @@
 				page:0,
 				pagesize:10,
 				listArray:[],			//列表
+				scrollTop: 0,
+				vanList:null
 			}
 		},
 		watch:{
@@ -72,9 +74,41 @@
 				this.meetingRecord(true);	
 			}
 		},
-		created(){
-			//获取会议记录
-			this.meetingRecord(true);
+		mounted(){
+			this.vanList = document.getElementById('vanList');
+			this.vanList.addEventListener('scroll', () => {
+				this.scrollTop = this.vanList.scrollTop;
+			})
+		},
+		activated(){
+			//页面来源
+			if(!this.$route.meta.isUseCache){
+				this.search = "";
+				this.meeting_status = '0';
+				this.loading = false;
+				this.finished = false;
+				this.page = 0;
+				this.pagesize = 10;
+				this.listArray = [];			//列表
+				//获取会议记录
+				this.meetingRecord(true);
+			}else{
+				this.vanList.scrollTop = this.scrollTop;
+			}
+			this.$route.meta.isUseCache = false;
+		},
+		beforeRouteLeave(to,from,next){
+			if(to.path == '/detail'){	//样衣详情/样衣绑定
+				from.meta.isUseCache = true;
+			}else{
+				from.meta.isUseCache = false;
+			}
+			next();
+		},
+		beforeDestroy() {
+			this.vanList.removeEventListener('scroll', (res) => {
+				this.scrollTop = this.vanList.scrollTop;
+			}, false)
 		},
 		methods:{
 			//加载更多
@@ -86,6 +120,8 @@
 			//获取会议记录
 			meetingRecord(is_reload){
 				if(is_reload){
+					this.scrollTop = 0;
+					this.vanList.scrollTop = 0;
 					this.listArray = [];
 					this.page = 1;
 					this.finished = false;

@@ -202,6 +202,7 @@
 				resource.updateMinutes(arg).then(res => {
 					if(res.data.code == 1){
 						this.$toast(res.data.msg);
+						this.$router.go(-1);
 					}else{
 						this.$toast(res.data.msg);
 					}
