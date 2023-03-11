@@ -40,7 +40,7 @@
     methods: {
       //获取钉钉鉴权参数
       getConfig(type){
-        resource.getConfig().then(res => {
+        resource.getConfig({from:'phone'}).then(res => {
           if(res.data.code == 1){
             let data = res.data.data;
             //钉钉鉴权
@@ -60,14 +60,14 @@
       //钉钉鉴权
       ddConfig(data,type){
         dd.config({
-          agentId: data.agentId, // 必填，微应用ID
-          corpId: data.corpId,//必填，企业ID
-          timeStamp: data.timeStamp, // 必填，生成签名的时间戳
-          nonceStr: data.nonceStr, // 必填，自定义固定字符串。
-          signature: data.signature, // 必填，签名
+          agentId: data.agentId,            // 必填，微应用ID
+          corpId: data.corpId,              //必填，企业ID
+          timeStamp: data.timeStamp,        // 必填，生成签名的时间戳
+          nonceStr: data.nonceStr,          // 必填，自定义固定字符串。
+          signature: data.signature,        // 必填，签名
           jsApiList : [
           'biz.contact.complexPicker'
-          ] // 必填，需要使用的jsapi列表，注意：不要带dd。
+          ]                             // 必填，需要使用的jsapi列表，注意：不要带dd。
         });
         dd.error(function (err) {
           alert('dd error: ' + JSON.stringify(err));
