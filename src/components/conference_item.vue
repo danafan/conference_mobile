@@ -1,5 +1,5 @@
 <template>
-	<div class="white_b pt10 pr10 pb25 pl10 mb4">
+	<div class="white_b pt10 pr10 pb25 pl10 mb4" @click="checkTime(info)">
 		<div class="flex jsb mb10">
 			<div class="flex fc jsb f14 text_color">
 				<div class="fw-500">{{info.meeting_room_name}}</div>
@@ -13,7 +13,7 @@
 			</div>
 			<img class="image" :src="domain + info.meeting_image">
 		</div>
-		<div class="select_time flex" @click="checkTime(info)">
+		<div class="select_time flex">
 			<div class="time_item relative" :class="[{'right_border':index > 0 && index%2 == 1 && index != number_list.length - 1},{'be_booked':item.be_booked},{'is_expire':item.is_expire}]" v-for="(item,index) in number_list">
 				<div class="absolute number f12 text_color" :class="[{'left':index == 0},{'re_left':item.point_time == 8 || item.point_time == 9}]">{{item.point_time}}</div>
 			</div>

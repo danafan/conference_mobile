@@ -363,10 +363,16 @@
 					name:this.userInfo.real_name,
 					emplId :this.userInfo.user_id
 				}
-				this.selected_user.unshift(current_user)
-				this.pickedUsers = users.map(item => {
-					return item.emplId;
+				let arr = this.selected_user.filter(item => {
+					return item.emplId == current_user.emplId;
 				})
+				if(arr.length == 0){
+					this.selected_user.unshift(current_user);
+				}
+				
+				// this.pickedUsers = users.map(item => {
+				// 	return item.emplId;
+				// })
 			},
 			//提交预约会议
 			confirmFn(){
