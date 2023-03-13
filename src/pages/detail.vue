@@ -197,7 +197,7 @@
 				let arg = {
 					meeting_id:this.meeting_id,
 					meeting_files:this.file_list.join(','),
-					meeting_minutes:this.meeting_minutes
+					meeting_minutes:this.meeting_minutes?this.meeting_minutes:""
 				}
 				resource.updateMinutes(arg).then(res => {
 					if(res.data.code == 1){

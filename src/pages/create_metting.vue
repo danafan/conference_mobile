@@ -47,7 +47,6 @@
 		<div class="bottom_content flex ac jc">
 			<div class="over_button white_color f15 fw-600" @click="confirmFn">完成</div>
 		</div>
-		
 		<!-- 切换时间 -->
 		<van-action-sheet @close="currentTime = null" v-model="show_check_date">
 			<van-datetime-picker
@@ -61,6 +60,7 @@
 			:min-minute="minM"
 			@change="changeTime"
 			@confirm="confirmTime"
+			@cancel="show_check_date = false"
 			/>
 		</van-action-sheet>
 		<!-- 级别/会议室/通知类型 -->
@@ -296,9 +296,9 @@
 			//判断开始时间是否大于结束时间
 			confirmTime(){
 				if(this.date_type == 'start'){
-					let ss = new Date(`${this.start_time.split(' ')[0]} ${this.currentTime}:00`);
-					let dd = new Date(`${this.end_time}`);
-					if(ss >= dd){
+					let c_s = this.start_time;
+					let c_e = `${this.end_time.split(' ')[0]} ${this.currentTime}:00`;
+					if(c_s >= c_e){
 						this.$toast('结束时间必须大于开始时间!')
 					}else{
 						this.start_time = `${this.start_time.split(' ')[0]} ${this.currentTime}:00`;
@@ -307,9 +307,9 @@
 						this.show_check_date = false;
 					}
 				}else{
-					let ss = new Date(`${this.start_time}`);
-					let dd = new Date(`${this.end_time.split(' ')[0]} ${this.currentTime}:00`);
-					if(ss >= dd){
+					let c_s = this.start_time;
+					let c_e = `${this.end_time.split(' ')[0]} ${this.currentTime}:00`;
+					if(c_s >= c_e){
 						this.$toast('结束时间必须大于开始时间!')
 					}else{
 						this.end_time = `${this.end_time.split(' ')[0]} ${this.currentTime}:00`;

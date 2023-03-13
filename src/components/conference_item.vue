@@ -206,7 +206,7 @@
 				let set_end_time = `${this.current_date} ${end_time}:00`;
 
 				//当前时间是否超出指定的结束时间
-				let is_expire = new Date(current_time) > new Date(set_end_time);
+				let is_expire = current_time > set_end_time;
 
 				let arg = {
 					is_expire:is_expire,				//是否过期
