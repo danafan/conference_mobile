@@ -296,8 +296,8 @@
 			//判断开始时间是否大于结束时间
 			confirmTime(){
 				if(this.date_type == 'start'){
-					let ss = new Date(`${this.start_time.split(' ')[0]} ${this.currentTime}:00`).getTime();
-					let dd = new Date(`${this.end_time}`).getTime();
+					let ss = new Date(`${this.start_time.split(' ')[0]} ${this.currentTime}:00`);
+					let dd = new Date(`${this.end_time}`);
 					if(ss >= dd){
 						this.$toast('结束时间必须大于开始时间!')
 					}else{
@@ -307,8 +307,8 @@
 						this.show_check_date = false;
 					}
 				}else{
-					let ss = new Date(`${this.start_time}`).getTime();
-					let dd = new Date(`${this.end_time.split(' ')[0]} ${this.currentTime}:00`).getTime();
+					let ss = new Date(`${this.start_time}`);
+					let dd = new Date(`${this.end_time.split(' ')[0]} ${this.currentTime}:00`);
 					if(ss >= dd){
 						this.$toast('结束时间必须大于开始时间!')
 					}else{
@@ -370,9 +370,9 @@
 					this.selected_user.unshift(current_user);
 				}
 				
-				// this.pickedUsers = users.map(item => {
-				// 	return item.emplId;
-				// })
+				this.pickedUsers = users.map(item => {
+					return item.emplId;
+				})
 			},
 			//提交预约会议
 			confirmFn(){

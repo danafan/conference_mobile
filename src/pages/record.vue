@@ -59,14 +59,20 @@
 				pagesize:10,
 				listArray:[],			//列表
 				scrollTop: 0,
-				vanList:null
+				vanList:null,
+				timer:null
 			}
 		},
 		watch:{
 			//监听输入框变化
 			search:function(n,o){
-				//获取会议室列表
-				this.meetingRecord(true);
+				if(this.timer){
+					clearTimeout(this.timer);
+				}
+				this.timer = setTimeout(() => {
+					//获取会议室列表
+					this.meetingRecord(true);
+				},500)
 			},
 			//切换tab
 			meeting_status:function(n,o){
@@ -120,10 +126,10 @@
 			//获取会议记录
 			meetingRecord(is_reload){
 				if(is_reload){
+					this.page = 1;
+					this.listArray = [];
 					this.scrollTop = 0;
 					this.vanList.scrollTop = 0;
-					this.listArray = [];
-					this.page = 1;
 					this.finished = false;
 				}
 				let arg = {

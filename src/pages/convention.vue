@@ -85,7 +85,8 @@
 				start_index:-1,				//第一次选中的下标
 				frequency:0,				//当前有效点击次数
 				scrollTop:0,
-				vanList:null
+				vanList:null,
+				timer:null
 			}
 		},
 		mounted(){
@@ -97,16 +98,15 @@
 		activated(){
 			//页面来源
 			if(!this.$route.meta.isUseCache){
-				this.date = "";					//显示的日期格式
-				this.current_date = "";			//传递的日期格式
+				this.date = "";						//显示的日期格式
+				this.current_date = "";				//传递的日期格式
 				this.search = "";					//搜索内容
 				this.equipment_list = [];			//设备列表
 				this.active_index = 1;				//默认选中的下标
-				this.list = [];					//会议室列表
+				this.list = [];						//会议室列表
 				this.title_info = {};				//顶部信息
 				this.time_list = [];				//时间列表
 				this.start_index = -1;				//第一次选中的下标
-				this.frequency = 0;				//当前有效点击次数
 				this.scrollTop = 0;
 				this.vanList = null;
 				//设置默认日期
@@ -117,7 +117,8 @@
 				//获取会议室列表
 				this.meetingList();
 			}
-			this.show_calendar = false;		//日期选择框
+			this.frequency = 0;					//当前有效点击次数
+			this.show_calendar = false;			//日期选择框
 			this.show_sheet = false;			//是否显示预定弹窗
 			this.$route.meta.isUseCache = false;
 		},
@@ -137,8 +138,13 @@
 		watch:{
 			//监听输入框变化
 			search:function(n,o){
-				//获取会议室列表
-				this.meetingList();
+				if(this.timer){
+					clearTimeout(this.timer);
+				}
+				this.timer = setTimeout(() => {
+					//获取会议室列表
+					this.meetingList();
+				},500)
 			},
 			//监听tab切换
 			active_index:function(n,o){
