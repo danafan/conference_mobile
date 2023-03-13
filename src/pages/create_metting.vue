@@ -296,8 +296,8 @@
 			//判断开始时间是否大于结束时间
 			confirmTime(){
 				if(this.date_type == 'start'){
-					let c_s = this.start_time;
-					let c_e = `${this.end_time.split(' ')[0]} ${this.currentTime}:00`;
+					let c_s = `${this.start_time.split(' ')[0]} ${this.currentTime}:00`;
+					let c_e = this.end_time;
 					if(c_s >= c_e){
 						this.$toast('结束时间必须大于开始时间!')
 					}else{
