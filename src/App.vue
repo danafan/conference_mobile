@@ -111,7 +111,9 @@
             this.$store.commit('setUserInfo',res.data.data);
             this.$store.commit('setDomain',res.data.data.domain);
             localStorage.setItem("domain",res.data.data.domain);
-            this.$router.replace('/index');
+            if(this.$route.path == '/'){
+              this.$router.replace('/index')
+            }
           }
         })
       }

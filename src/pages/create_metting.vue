@@ -84,6 +84,7 @@
 		data(){
 			return{
 				title:"",				//会议标题
+				expire_time:"",			//最后一个已过期时间
 				start_time:"",			//开始时间
 				view_start_date:"",		//显示的开始时间上面
 				view_start_hm:"",		//显示的开始时间下面
@@ -122,11 +123,28 @@
 		},
 		created(){
 			let query = this.$route.query;
-			this.title = `【${query.title}】预约`;
-			this.room_name = query.title;
 			this.room_id = query.id;
-			this.start_time = query.start_time;
-			this.end_time = query.end_time;
+			this.room_name = query.title;
+			this.title = `【${query.title}】预约`;
+			if(query.expire_time){		//系统内部跳转进入
+				this.expire_time = query.expire_time;
+				this.start_time = query.start_time;
+				this.end_time = query.end_time;
+			}else{						//扫码进入
+				var now = new Date(); 				//当前日期  
+				var nowYear = now.getYear(); 		//当前年 
+				nowYear += (nowYear < 2000) ? 1900 : 0;
+				var nowMonth = now.getMonth()<10?`0${now.getMonth() + 1}`:now.getMonth() + 1; 		//当前月 
+				var nowDay = now.getDate()<10?`0${now.getDate()}`:now.getDate(); 		//当前日 
+				var nowHours = now.getHours()<10?`0${now.getHours()}`:now.getHours();  	//当前小时
+				var nowMinutes = now.getMinutes()<10?`0${now.getMinutes()}`:now.getMinutes();  //当前分钟
+				//开始时间
+				this.start_time = `${nowYear}-${nowMonth}-${nowDay} ${nowHours}:${nowMinutes < 30?'00':'30'}:00`;
+				//结束时间
+				this.end_time = `${nowYear}-${nowMonth}-${nowDay} ${nowMinutes < 30?nowHours:parseInt(nowHours)+1}:${nowMinutes < 30?'30':'00'}:00`;
+				this.expire_time = this.start_time;
+			}
+			
 			//设置当前选中的参会人员
 			this.setPickedUsers([]);
 			//设置开始时间（展示）
@@ -300,10 +318,12 @@
 					let c_e = this.end_time;
 					if(c_s >= c_e){
 						this.$toast('结束时间必须大于开始时间!')
+					}else if(c_s < this.expire_time){
+						this.$toast('该时间段已过期，不能选择!')
 					}else{
 						this.start_time = `${this.start_time.split(' ')[0]} ${this.currentTime}:00`;
 						//设置开始时间（展示）
-			    		this.setStartDate();
+						this.setStartDate();
 						this.show_check_date = false;
 					}
 				}else{
@@ -314,7 +334,7 @@
 					}else{
 						this.end_time = `${this.end_time.split(' ')[0]} ${this.currentTime}:00`;
 						//设置开始时间（展示）
-			    		this.setEndDate();
+						this.setEndDate();
 						this.show_check_date = false;
 					}
 				}
