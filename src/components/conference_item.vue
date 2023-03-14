@@ -194,17 +194,15 @@
 				nowYear += (nowYear < 2000) ? 1900 : 0;
 				var nowMonth = now.getMonth()<10?`0${now.getMonth() + 1}`:now.getMonth() + 1; 		//当前月 
 				var nowDay = now.getDate()<10?`0${now.getDate()}`:now.getDate(); 		//当前日 
-				var nowHours = now.getHours();  	//当前小时
-				var nowMinutes = now.getMinutes();  //当前分钟
-				var Seconds = now.getSeconds();     //当前秒
-
+				var nowHours = now.getHours()<10?`0${now.getHours()}`:now.getHours();  	//当前小时
+				var nowMinutes = now.getMinutes()<10?`0${now.getMinutes()}`:now.getMinutes();  //当前分钟
 				//当前时间
-				let current_time = this.current_date == `${nowYear}-${nowMonth}-${nowDay}`?`${nowYear}-${nowMonth}-${nowDay} ${nowHours}:${nowMinutes}:${Seconds}`:`${this.current_date} 00:00:00`;
+				let current_time = this.current_date == `${nowYear}-${nowMonth}-${nowDay}`?`${nowYear}-${nowMonth}-${nowDay} ${nowHours}:${nowMinutes}:00`:`${this.current_date} 00:00:00`;
 				//指定的开始时间
 				let set_start_time = `${this.current_date} ${start_time}:00`;
 				//指定的结束时间
 				let set_end_time = `${this.current_date} ${end_time}:00`;
-
+				
 				//当前时间是否超出指定的结束时间
 				let is_expire = current_time > set_end_time;
 

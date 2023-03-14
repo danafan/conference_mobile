@@ -21,8 +21,8 @@
 		</div>
 		<!-- tab -->
 		<div class="flex mb2">
-			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 1},{'white_b':active_index == 1},{'shadow_back':active_index == 0}]" @click="active_index = 1">可预定</div>
-			<div class="tab_item fw-500 f14" :class="[{'primary_color':active_index == 0},{'white_b':active_index == 0},{'shadow_back':active_index == 1}]" @click="active_index = 0">全部</div>
+			<div class="tab_item white_b fw-500 f14" :class="[{'primary_color':active_index == 1},{'shadow_back':active_index == 1}]" @click="active_index = 1">可预定</div>
+			<div class="tab_item white_b fw-500 f14" :class="[{'primary_color':active_index == 0},{'shadow_back':active_index == 0}]" @click="active_index = 0">全部</div>
 		</div>
 		<!-- 列表 -->
 		<div class="flex-1 scroll-y hide_scrollbar" id="vanList" v-show="list.length > 0">
