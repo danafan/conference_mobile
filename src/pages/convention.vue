@@ -324,7 +324,13 @@
 					let expire_arr = this.time_list.filter(item => {
 						return item.is_expire == true;
 					})
-					let expire_time = expire_arr[expire_arr.length - 1].arg_end_time;
+					let expire_time = "";
+					if(expire_arr.length > 0){
+						expire_time = expire_arr[expire_arr.length - 1].arg_end_time;
+					}else{
+						expire_time = this.time_list[0].arg_end_time;
+					}
+					
 					let start_time = arr[0].arg_start_time;
 					let end_time = arr[arr.length - 1].arg_end_time;
 					let title = this.title_info.meeting_room_name;
