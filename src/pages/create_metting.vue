@@ -119,6 +119,7 @@
 				is_chat_notice:1,			//是否单聊通知
 				selected_user:[],			//已选中的用户
 				pickedUsers:[],				//除本人外的其余人的ID
+				in_type:'1',			//进入页面的方式（1:系统内部；2：扫码进入）
 			}
 		},
 		created(){
@@ -127,10 +128,12 @@
 			this.room_name = query.title;
 			this.title = `【${query.title}】预约`;
 			if(query.expire_time){		//系统内部跳转进入
+				this.in_type = '1';
 				this.expire_time = query.expire_time;
 				this.start_time = query.start_time;
 				this.end_time = query.end_time;
 			}else{						//扫码进入
+				this.in_type = '2';
 				var now = new Date(); 				//当前日期  
 				var nowYear = now.getYear(); 		//当前年 
 				nowYear += (nowYear < 2000) ? 1900 : 0;
@@ -144,7 +147,6 @@
 				this.end_time = `${nowYear}-${nowMonth}-${nowDay} ${nowMinutes < 30?nowHours:parseInt(nowHours)+1}:${nowMinutes < 30?'30':'00'}:00`;
 				this.expire_time = this.start_time;
 			}
-			
 			//设置当前选中的参会人员
 			this.setPickedUsers([]);
 			//设置开始时间（展示）
@@ -167,6 +169,13 @@
 			corpId(){
 				return this.$store.state.corpId;
 			},
+		},
+		watch:{
+			//处理扫码进入不能获取当前用户信息
+			userInfo(){
+				//设置当前选中的参会人员
+				this.setPickedUsers([]);
+			}
 		},
 		methods:{
 			//获取预定信息
@@ -389,7 +398,6 @@
 				if(arr.length == 0){
 					this.selected_user.unshift(current_user);
 				}
-				
 				this.pickedUsers = users.map(item => {
 					return item.emplId;
 				})
@@ -413,7 +421,11 @@
 				resource.addMeetingPost(arg).then(res => {
 					if(res.data.code == 1){
 						this.$toast(res.data.msg);
-						this.$router.go(-1);
+						if(this.in_type == '1'){
+							this.$router.go(-1);
+						}else{
+							this.$router.replace('/index')
+						}
 					}else{
 						this.$toast(res.data.msg);
 					}
