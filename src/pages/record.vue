@@ -24,7 +24,7 @@
 			</div>
 			<div class="line"></div>
 			<div class="flex f14">
-				<div class="button flex-1 border_right" v-if="item.cancle_status == 1 && info.status != 3" @click="cancelFn(item.meeting_id)">取消日程</div>
+				<div class="button flex-1 border_right" v-if="item.cancle_status == 1 && item.status != 3" @click="cancelFn(item.meeting_id)">取消日程</div>
 				<div class="button flex-1 primary_color fw-500" @click="$router.push(`/detail?meeting_id=${item.meeting_id}`)">会议详情</div>
 			</div>
 		</div>
