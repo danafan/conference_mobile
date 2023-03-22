@@ -9,6 +9,7 @@ const store = new Vuex.Store({
     corpId:"",
     domain:localStorage.getItem("domain")?localStorage.getItem("domain"):"",
     userInfo:{},
+    showOverlay:false,
   },
   mutations: {
     //设置appId
@@ -26,6 +27,10 @@ const store = new Vuex.Store({
     //用户信息
     setUserInfo (state, info) {  
       state.userInfo = info;
+    },
+    //用户信息
+    setShowOverlay (state, bool) {  
+      state.showOverlay = bool;
     },
   },
   actions: {

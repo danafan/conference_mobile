@@ -4,6 +4,12 @@
       <router-view v-if="$route.meta.keepAlive"></router-view>
     </keep-alive>
     <router-view v-if="!$route.meta.keepAlive"></router-view>
+    <van-overlay :show="showOverlay">
+      <div class="height-100 flex jc ac">
+        <van-loading size="24px" vertical>加载中</van-loading>
+      </div>
+    </van-overlay>
+
   </div>
 </template>
 
@@ -12,6 +18,12 @@
 
   import resource from './api/resource.js'
   export default {
+    computed:{
+      //加载弹窗
+      showOverlay(){
+        return this.$store.state.showOverlay;
+      }
+    },
     created() {
       resource.getUserInfo().then(res => {
         if(res.data.code == 1){

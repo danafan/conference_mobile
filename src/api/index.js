@@ -1,6 +1,7 @@
 import axios from "axios";
 const baseURL = `${location.origin}/api`;
 import { Toast } from "vant";
+import store from '../store'
 
 // 创建axios实例，可以自定义配置
 const instance = axios.create({
@@ -9,11 +10,7 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   (config) => {
-    Toast.loading({
-      message:'加载中',
-      forbidClick: true,
-      duration:0
-    });
+    store.commit('setShowOverlay',true);
     return config;
   },
   (error) => {
@@ -22,11 +19,11 @@ instance.interceptors.request.use(
   );
 instance.interceptors.response.use(
   (response) => {
-    Toast.clear();
-    return response;
-  },
-  function (error) {
-   Toast.clear();
+   store.commit('setShowOverlay',false);
+   return response;
+ },
+ function (error) {
+   store.commit('setShowOverlay',false);
    if (error.response) {
     switch (error.response.status) {
       case 404:
