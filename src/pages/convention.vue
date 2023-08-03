@@ -42,8 +42,8 @@
 						<div>{{title_info.limit_num}}人</div>
 					</div>
 				</div>
-				<div class="time_list pl15">
-					<div class="time_item f14 flex ac jsb pr15" v-for="(item,index) in time_list" @click="checkItem(index)">
+				<div class="time_list pl15" id="time_list">
+					<div class="time_item f14 flex ac jsb pr15" :id="`id_${index}`" v-for="(item,index) in time_list" @click="checkItem(index)">
 						<div class="flex ac">
 							<img class="select_icon mr7" src="../static/select_hui.png" v-if="item.is_expire && !item.be_booked">
 							<img class="select_icon mr7" src="../static/select_dis.png" v-if="item.be_booked">
@@ -238,6 +238,13 @@
 				})
 				this.time_list = number_list;
 				this.show_sheet = true;
+				this.$nextTick(() => {
+					if(v.current_index){
+						document.getElementById('time_list').scrollTop = document.getElementById(`id_${v.current_index}`).offsetTop - 50
+					}else{
+						document.getElementById('time_list').scrollTop = 0;
+					}
+				})
 			},
 			//点击选择某个时间段
 			checkItem(index){
@@ -346,68 +353,68 @@
 	}
 </script>
 <style lang="less" scoped>
-.date_icon{
-	width: 18px;
-	height: 18px;
-}
-.down_arrow{
-	width: 9.9px;
-	height: 5.5px;
-}
-.search{
-	height: 36px;
-	background: #F0EFFE;
-	border-radius: 20px;
-	.search_icon{
-		width: 13px;
-		height: 13px;
+	.date_icon{
+		width: 18px;
+		height: 18px;
 	}
-	.search_input{
-		outline: none;
-		border: none;
+	.down_arrow{
+		width: 9.9px;
+		height: 5.5px;
+	}
+	.search{
+		height: 36px;
 		background: #F0EFFE;
-		font-size: 12px;
-		color: #333333;
+		border-radius: 20px;
+		.search_icon{
+			width: 13px;
+			height: 13px;
+		}
+		.search_input{
+			outline: none;
+			border: none;
+			background: #F0EFFE;
+			font-size: 12px;
+			color: #333333;
+		}
 	}
-}
-.select_icon{
-	width: 18px;
-	height: 18px;
-}
-.tab_item{
-	border-radius: 8px 8px 0px 0px;
-	width: 50%;
-	text-align: center;
-	height: 52px;
-	line-height: 52px;
-}
-.shadow_back{
-	background: linear-gradient(180deg, #DAE6FF 0%, #F8FBFF 100%);
-}
-.user_icon{
-	width: 12px;
-	height: 12px;
-}
-.time_list{
-	max-height: 314px;
-	overflow-y: scroll;
-	.time_item{
-		height: 44px;
-		border-bottom: 1px solid #F0F0F0;
+	.select_icon{
+		width: 18px;
+		height: 18px;
 	}
-}
-.user_name{
-	color: #6670FD;
-}
-.button_box{
-	height: 86px;
-	.button{
-		width: 311px;
-		text-align:center;
-		height: 45px;
-		line-height: 45px;
-		background: #6670FD;
-		border-radius: 23px;
+	.tab_item{
+		border-radius: 8px 8px 0px 0px;
+		width: 50%;
+		text-align: center;
+		height: 52px;
+		line-height: 52px;
 	}
-}
+	.shadow_back{
+		background: linear-gradient(180deg, #DAE6FF 0%, #F8FBFF 100%);
+	}
+	.user_icon{
+		width: 12px;
+		height: 12px;
+	}
+	.time_list{
+		max-height: 314px;
+		overflow-y: scroll;
+		.time_item{
+			height: 44px;
+			border-bottom: 1px solid #F0F0F0;
+		}
+	}
+	.user_name{
+		color: #6670FD;
+	}
+	.button_box{
+		height: 86px;
+		.button{
+			width: 311px;
+			text-align:center;
+			height: 45px;
+			line-height: 45px;
+			background: #6670FD;
+			border-radius: 23px;
+		}
+	}
 </style>

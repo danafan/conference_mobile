@@ -14,7 +14,7 @@
 			<img class="image" :src="domain + info.meeting_image">
 		</div>
 		<div class="select_time flex">
-			<div class="time_item relative" :class="[{'right_border':index > 0 && index%2 == 1 && index != number_list.length - 1},{'be_booked':item.be_booked},{'is_expire':item.is_expire}]" v-for="(item,index) in number_list">
+			<div class="time_item relative" :class="[{'right_border':index > 0 && index%2 == 1 && index != number_list.length - 1},{'be_booked':item.be_booked},{'is_expire':item.is_expire}]" v-for="(item,index) in number_list" @click.stop="clickItem(item)">
 				<div class="absolute number f12 text_color" :class="[{'left':index == 0},{'re_left':item.point_time == 8 || item.point_time == 9}]">{{item.point_time}}</div>
 			</div>
 		</div>
@@ -220,6 +220,19 @@
 					number_list:this.number_list
 				}
 				this.$emit('checkTime',v);
+			},
+			//点击某一个时间点
+			clickItem(v){
+				let index = this.number_list.findIndex(item => {
+					return item.arg_start_time == v.arg_start_time && item.arg_end_time == v.arg_end_time
+				})
+				let arg = {
+					info:this.info,
+					number_list:this.number_list,
+					current_index:index
+				}
+
+				this.$emit('checkTime',arg);
 			}
 		}
 	}
